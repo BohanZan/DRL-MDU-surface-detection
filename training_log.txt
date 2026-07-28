@@ -1,0 +1,27 @@
+Device: cuda
+
+MDUs: 4 at [288, 296, 360, 368]
+Obs dim: 18, State dim: 14, Act dim: 5
+Cone: 60.0deg / 300.0m
+Episodes: 500, Max steps: 500
+Target cov: 95%
+
+Ep     1 | R -9.150 | Cov 81.72% | Len 500 | Ent 1.593 | LR 0.0500
+Ep    50 | R -8.407 | Cov 79.66% | Len 500 | Ent 1.419 | LR 0.0452
+Ep   100 | R -9.150 | Cov 76.61% | Len 500 | Ent 1.410 | LR 0.0403
+Ep   150 | R -8.842 | Cov 77.24% | Len 500 | Ent 1.411 | LR 0.0354
+Ep   200 | R -8.883 | Cov 79.59% | Len 500 | Ent 1.355 | LR 0.0305
+Ep   250 | R -8.533 | Cov 79.49% | Len 500 | Ent 1.378 | LR 0.0256
+Ep   300 | R -7.663 | Cov 81.44% | Len 500 | Ent 1.315 | LR 0.0207
+Ep   350 | R -8.272 | Cov 79.79% | Len 500 | Ent 1.320 | LR 0.0158
+Ep   400 | R -7.711 | Cov 80.55% | Len 500 | Ent 1.235 | LR 0.0109
+Ep   450 | R -8.417 | Cov 79.72% | Len 500 | Ent 1.196 | LR 0.0060
+Ep   500 | R -8.970 | Cov 76.98% | Len 500 | Ent 1.103 | LR 0.0011
+
+Greedy eval...
+
+==================================================
+DONE! 4041s (67.4min)
+  Best train:  92.24%
+  Greedy eval: 10.33%
+==================================================

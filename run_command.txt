@@ -1,0 +1,20 @@
+# 1. 激活 conda 环境
+  conda activate comm_python_env
+
+  # 2. 修复 Intel oneAPI 冲突
+  set KMP_DUPLICATE_LIB_OK=TRUE
+
+  # 3. 训练（默认参数从 src/config.py 读取）
+  python src/train.py --mdus 4 --episodes 500 --save-plot --tag 4mdu
+
+  # 完整参数列表（都可覆盖）：
+  python src/train.py \
+      --mdus 4 \              # MDU 数量
+      --episodes 500 \        # 训练轮数
+      --max-steps 150 \       # 每轮最大步数
+      --cone-range 300 \      # 探测距离 (m)
+      --epochs 3 \            # PPO epochs
+      --lr-actor 3e-4 \       # Actor 学习率
+      --use-gnn \             # 启用 GNN（如果需要）
+      --save-plot \           # 保存训练曲线图
+      --tag 4mdu              # 输出目录标签
