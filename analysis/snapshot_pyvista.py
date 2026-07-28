@@ -97,6 +97,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
 
     # ── Build scene ──
     plotter = pv.Plotter(window_size=(1600, 1200), off_screen=True)
+    plotter.set_background("white")
 
     # Asteroid
     ast = make_asteroid_mesh(ast_verts, ast_faces, cov_masks[step])
@@ -129,7 +130,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
     # ── Camera ──
     # Position camera on a sphere around the center at fixed distance
     ast_center_arr = np.array(ast_center)
-    radius = 600.0  # camera distance from asteroid center
+    radius = 900.0  # camera distance from asteroid center
     az_rad, el_rad = np.deg2rad(azim), np.deg2rad(elev)
     cam_pos = ast_center_arr + radius * np.array([
         np.cos(el_rad) * np.cos(az_rad),
