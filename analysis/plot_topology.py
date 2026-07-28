@@ -68,7 +68,7 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
             u, v = int(path[t]), int(path[t + 1])
             if u == v or u not in grid or v not in grid: continue
             r1, c1 = grid[u]; r2, c2 = grid[v]
-            alpha = 0.7 + 0.2 * (t / max(T - 2, 1))
+            alpha = 0.7 + 0.25 * (t / max(T - 2, 1))
             dc, dr = c2 - c1, r2 - r1
             ax.arrow(c1, r1, dc * 0.85, dr * 0.85,
                      head_width=0.015, head_length=0.025, fc=color, ec=color,
