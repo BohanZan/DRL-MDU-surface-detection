@@ -24,7 +24,7 @@ plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
 plt.rcParams["font.weight"] = "normal"
 
-COLORS_MDU = plt.cm.tab10(np.linspace(0, 1, 10))
+TOL_MUTED = ["#6699CC", "#004488", "#EECC66", "#994455", "#997700", "#EE99AA"]
 
 
 def compute_2d_layout(positions):
@@ -63,7 +63,7 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
     ax.scatter(cs, rs, s=3, color=(0.2, 0.2, 0.2, 0.4), zorder=2)
 
     for mdu_idx in range(N_mdus):
-        path = mdu_nodes[:, mdu_idx]; color = COLORS_MDU[mdu_idx]
+        path = mdu_nodes[:, mdu_idx]; color = TOL_MUTED[mdu_idx]
         for t in range(T - 1):
             u, v = int(path[t]), int(path[t + 1])
             if u == v or u not in grid or v not in grid: continue
@@ -81,8 +81,8 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
 
     # Custom legend: line+dot per MDU
     from matplotlib.lines import Line2D
-    handles = [Line2D([0], [0], marker="o", color=COLORS_MDU[i],
-                      markerfacecolor=COLORS_MDU[i], markersize=14,
+    handles = [Line2D([0], [0], marker="o", color=TOL_MUTED[i],
+                      markerfacecolor=TOL_MUTED[i], markersize=14,
                       linewidth=3, label=f"MDU {i + 1}") for i in range(N_mdus)]
     leg = ax.legend(handles=handles, loc="upper right", fontsize=24,
                     framealpha=1.0, facecolor="white", edgecolor="black")
