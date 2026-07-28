@@ -149,12 +149,11 @@ def main():
     # Parse azimuths
     azim_list = [int(a.strip()) for a in args.azim.split(",")]
 
-    # Output directory
+    # Output directory (default: analysis/outputs/)
     if args.output:
         out_dir = args.output
     else:
-        run_dir = os.path.dirname(os.path.dirname(npz_path))
-        out_dir = os.path.join(run_dir, "plots")
+        out_dir = os.path.join(root, "analysis", "outputs")
     os.makedirs(out_dir, exist_ok=True)
 
     for azim in azim_list:

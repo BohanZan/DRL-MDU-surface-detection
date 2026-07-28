@@ -84,7 +84,7 @@ def analyze(run_dir):
             print(f"  !! {i}")
         return False
     else:
-        print("✓ ALL CHECKS PASSED - training looks healthy")
+        print("ALL CHECKS PASSED - training looks healthy")
         return True
 
 def main():
