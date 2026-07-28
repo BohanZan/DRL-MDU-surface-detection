@@ -26,6 +26,14 @@ src/
 Decentralized Execution), GRU temporal memory, truncated BPTT, GAE,
 and a Gompertz S-curve coverage bonus.
 
+## Demo
+
+### Training Curves
+![Training Curves](Seeings/training_curves.png)
+
+### 4-MDU Trajectory Animation
+![Animation](Seeings/Animation.gif)
+
 ## Quick Start
 
 ```bash
