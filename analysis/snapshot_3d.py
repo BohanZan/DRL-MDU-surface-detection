@@ -15,24 +15,17 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# Font: bold Times New Roman for labels/titles, regular for ticks
-plt.rcParams["font.family"] = "serif"
-plt.rcParams["font.serif"] = ["Times New Roman"]
-plt.rcParams["mathtext.fontset"] = "stix"
-plt.rcParams["axes.labelweight"] = "bold"
-plt.rcParams["axes.titleweight"] = "bold"
-plt.rcParams["font.weight"] = "normal"
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.colors import to_rgba_array
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.run_manager import find_run
+from src.style_config import TOL_MUTED, apply_style
+apply_style()
 
-# Visual constants
-COLOR_UNCOV = (0.5, 0.5, 0.5, 0.95)    # uncovered asteroid surface
-COLOR_COV = (0.2, 0.8, 0.2, 0.95)       # covered surface
-COLOR_MDU = (1.0, 0.2, 0.0, 1.0)        # MDU marker
-COLOR_MDU_OCCLUDED = (0.6, 0.6, 0.6, 0.3)  # MDU behind asteroid
+COLOR_UNCOV = (0.5, 0.5, 0.5, 0.95)
+COLOR_COV = (0.2, 0.8, 0.2, 0.95)
+COLOR_MDU_OCCLUDED = (0.6, 0.6, 0.6, 0.3)
 COLOR_NET_NODE = (0.3, 0.3, 0.8, 0.3)
 COLOR_NET_EDGE = (0.4, 0.4, 0.7, 0.12)
 COLOR_AST_EDGE = (0.3, 0.3, 0.3, 0.12)
@@ -104,7 +97,9 @@ def render_snapshot(ax, data, step, azim, elev):
         pos = net_positions[int(mdu_nodes[step, i])]
         mdu_vec = pos - ast_center
         occluded = np.dot(mdu_vec, look_dir) <= 0
-        color = COLOR_MDU_OCCLUDED if occluded else COLOR_MDU
+        mdu_hex = TOL_MUTED[i % len(TOL_MUTED)].lstrip("#")
+        mdu_rgb = tuple(int(mdu_hex[j:j+2], 16) / 255.0 for j in (0, 2, 4))
+        color = COLOR_MDU_OCCLUDED if occluded else (*mdu_rgb, 1.0)
         size = 60 if occluded else 150
         edge_c = "gray" if occluded else "black"
         lw = 0.5 if occluded else 1.0

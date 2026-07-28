@@ -25,7 +25,7 @@ os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 FPS = 10
 COLOR_UNCOV = (0.5, 0.5, 0.5, 0.95)   # opaque asteroid surface
 COLOR_COV = (0.2, 0.8, 0.2, 0.95)
-COLOR_MDU = (1.0, 0.2, 0.0)
+from src.style_config import TOL_MUTED
 COLOR_MDU_OCCLUDED = (0.6, 0.6, 0.6, 0.3)  # ghosted when behind asteroid
 COLOR_NODE = (0.3, 0.3, 0.8, 0.25)
 COLOR_EDGE = (0.4, 0.4, 0.7, 0.15)
@@ -189,7 +189,8 @@ def main():
                 mdu_vec = pos - ast_center
                 # MDU is on far side if it's in opposite hemisphere from camera
                 occluded = np.dot(mdu_vec, look_dir) <= 0
-                color = COLOR_MDU_OCCLUDED if occluded else COLOR_MDU
+                mdu_color = TOL_MUTED[i % len(TOL_MUTED)]
+                color = COLOR_MDU_OCCLUDED if occluded else mdu_color
                 size = 60 if occluded else 150
                 edge_c = "gray" if occluded else "black"
                 lw = 0.5 if occluded else 1.0

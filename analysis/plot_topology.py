@@ -16,15 +16,9 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.run_manager import find_run
+from src.style_config import TOL_MUTED, apply_style
+apply_style()
 
-plt.rcParams["font.family"] = "serif"
-plt.rcParams["font.serif"] = ["Times New Roman"]
-plt.rcParams["mathtext.fontset"] = "stix"
-plt.rcParams["axes.labelweight"] = "bold"
-plt.rcParams["axes.titleweight"] = "bold"
-plt.rcParams["font.weight"] = "normal"
-
-TOL_MUTED = ["#004488", "#EECC66", "#994455", "#997700", "#6699CC", "#EE99AA"]
 
 
 def compute_2d_layout(positions):

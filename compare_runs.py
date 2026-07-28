@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 from run_manager import find_run
+from style_config import TOL_MUTED, apply_style
+apply_style()
 
 def load_data(run_dir):
     path = os.path.join(run_dir, "plots", "training_data.npz")
@@ -63,8 +65,8 @@ def main():
     fig.suptitle(f"Baseline vs GNN — 4 MDU, 1000 episodes", fontsize=14, fontweight="bold")
 
     def plot_compare(ax, x1, y1, x2, y2, label1, label2, ylabel, title, smooth=20):
-        ax.plot(y1, alpha=0.2, linewidth=0.5, color="blue")
-        ax.plot(y2, alpha=0.2, linewidth=0.5, color="red")
+        ax.plot(y1, alpha=0.2, linewidth=0.5, color=TOL_MUTED[0])
+        ax.plot(y2, alpha=0.2, linewidth=0.5, color=TOL_MUTED[2])
         if len(y1) >= smooth:
             s1 = np.convolve(y1, np.ones(smooth)/smooth, mode="valid")
             s2 = np.convolve(y2, np.ones(smooth)/smooth, mode="valid")

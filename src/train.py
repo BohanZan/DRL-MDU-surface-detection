@@ -193,12 +193,8 @@ def main():
             matplotlib.use("Agg")
             import matplotlib.pyplot as plt
 
-            # --- Plot style: Times New Roman, bold labels ---
-            plt.rcParams["font.family"] = "serif"
-            plt.rcParams["font.serif"] = ["Times New Roman"]
-            plt.rcParams["mathtext.fontset"] = "stix"
-            plt.rcParams["axes.labelweight"] = "bold"
-            plt.rcParams["axes.titleweight"] = "bold"
+            from src.style_config import apply_style
+            apply_style()
 
             n = min(len(ep_cov), len(ep_hidden), len(ep_loss_a), len(ep_loss_c))
             fig, axes = plt.subplots(2, 3, figsize=(16, 8))

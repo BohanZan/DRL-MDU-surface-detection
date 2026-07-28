@@ -135,11 +135,8 @@ def main():
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        plt.rcParams["font.family"] = "serif"
-        plt.rcParams["font.serif"] = ["Times New Roman"]
-        plt.rcParams["mathtext.fontset"] = "stix"
-        plt.rcParams["axes.labelweight"] = "bold"
-        plt.rcParams["axes.titleweight"] = "bold"
+        from src.style_config import apply_style
+        apply_style()
         fig, axes = plt.subplots(2, 2, figsize=(12, 8))
         ax = axes[0, 0]
         ax.plot(ep_cov, "g-", alpha=0.5, linewidth=0.5)
