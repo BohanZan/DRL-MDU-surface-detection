@@ -55,8 +55,8 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
         uu, vv = int(u), int(v)
         if uu in grid and vv in grid:
             r1, c1 = grid[uu]; r2, c2 = grid[vv]
-            ax.plot([c1, c2], [r1, r2], color=(0.6, 0.6, 0.6, 0.25),
-                    linewidth=0.4, zorder=1)
+            ax.plot([c1, c2], [r1, r2], color=(0.5, 0.5, 0.5, 0.6),
+                    linewidth=0.7, zorder=1)
 
     nodes = sorted(grid)
     rs = [grid[i][0] for i in nodes]; cs = [grid[i][1] for i in nodes]
@@ -77,10 +77,14 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
         if sn in grid:
             sr, sc = grid[sn]
             ax.scatter(sc, sr, s=100, marker="o", facecolor=color,
-                       edgecolor="black", linewidth=2.0, zorder=10,
-                       label=f"MDU {mdu_idx + 1}")
+                       edgecolor="black", linewidth=2.0, zorder=10)
 
-    leg = ax.legend(loc="upper right", fontsize=24, markerscale=0.8,
+    # Custom legend: line+dot per MDU
+    from matplotlib.lines import Line2D
+    handles = [Line2D([0], [0], marker="o", color=COLORS_MDU[i],
+                      markerfacecolor=COLORS_MDU[i], markersize=14,
+                      linewidth=3, label=f"MDU {i + 1}") for i in range(N_mdus)]
+    leg = ax.legend(handles=handles, loc="upper right", fontsize=24,
                     framealpha=1.0, facecolor="white", edgecolor="black")
     leg.set_zorder(100)
     ax.set_aspect("equal")
