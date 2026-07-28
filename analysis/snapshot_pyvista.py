@@ -130,7 +130,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
     # ── Camera ──
     # Position camera on a sphere around the center at fixed distance
     ast_center_arr = np.array(ast_center)
-    radius = 900.0  # camera distance from asteroid center
+    radius = 1200.0  # camera distance from asteroid center
     az_rad, el_rad = np.deg2rad(azim), np.deg2rad(elev)
     cam_pos = ast_center_arr + radius * np.array([
         np.cos(el_rad) * np.cos(az_rad),
@@ -141,6 +141,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
     plotter.camera.position = cam_pos
     plotter.camera.focal_point = ast_center_arr
     plotter.camera.up = up
+    plotter.camera.clipping_range = (10.0, 5000.0)
 
     # ── Title ──
     plotter.add_title(f"Step {step}  |  Coverage: {cov_rates[step]:.1%}",
