@@ -24,7 +24,7 @@ plt.rcParams["axes.labelweight"] = "bold"
 plt.rcParams["axes.titleweight"] = "bold"
 plt.rcParams["font.weight"] = "normal"
 
-TOL_MUTED = ["#6699CC", "#004488", "#EECC66", "#994455", "#997700", "#EE99AA"]
+TOL_MUTED = ["#004488", "#EECC66", "#994455", "#997700", "#6699CC", "#EE99AA"]
 
 
 def compute_2d_layout(positions):
