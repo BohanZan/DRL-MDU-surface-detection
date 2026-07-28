@@ -63,7 +63,7 @@ def draw_fov_cone(ax, mdu_pos, ast_centroids, n_lines=16):
     # Draw lines from apex to circle points
     for pt in circle:
         ax.plot([mdu_pos[0], pt[0]], [mdu_pos[1], pt[1]], [mdu_pos[2], pt[2]],
-                color=(1.0, 0.8, 0.0, 0.25), linewidth=0.5, zorder=3)
+                color=(0.0, 0.0, 0.0, 1.0), linewidth=0.5, zorder=3)
 
 
 def render_snapshot(ax, data, step, azim, elev, show_cone=True):
