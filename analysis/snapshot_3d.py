@@ -14,6 +14,14 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+# Font: bold Times New Roman for labels/titles, regular for ticks
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["font.serif"] = ["Times New Roman"]
+plt.rcParams["mathtext.fontset"] = "stix"
+plt.rcParams["axes.labelweight"] = "bold"
+plt.rcParams["axes.titleweight"] = "bold"
+plt.rcParams["font.weight"] = "normal"
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.colors import to_rgba_array
 
