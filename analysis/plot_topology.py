@@ -80,7 +80,9 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
                        edgecolor="black", linewidth=2.0, zorder=10,
                        label=f"MDU {mdu_idx + 1}")
 
-    ax.legend(loc="upper right", fontsize=24, markerscale=0.8)
+    leg = ax.legend(loc="upper right", fontsize=24, markerscale=0.8,
+                    framealpha=1.0, facecolor="white", edgecolor="black")
+    leg.set_zorder(100)
     ax.set_aspect("equal")
     ax.tick_params(labelsize=18)
     ax.set_xlabel("")
