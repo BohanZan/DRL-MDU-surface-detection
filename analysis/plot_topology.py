@@ -56,7 +56,7 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
         if uu in grid and vv in grid:
             r1, c1 = grid[uu]; r2, c2 = grid[vv]
             ax.plot([c1, c2], [r1, r2], color=(0.6, 0.6, 0.6, 0.25),
-                    linewidth=0.3, zorder=1)
+                    linewidth=0.4, zorder=1)
 
     nodes = sorted(grid)
     rs = [grid[i][0] for i in nodes]; cs = [grid[i][1] for i in nodes]
@@ -72,21 +72,19 @@ def draw(ax, grid, net_edges, mdu_nodes, N_mdus, T):
             dc, dr = c2 - c1, r2 - r1
             ax.arrow(c1, r1, dc * 0.85, dr * 0.85,
                      head_width=0.015, head_length=0.025, fc=color, ec=color,
-                     alpha=alpha, linewidth=1.2, length_includes_head=True, zorder=5)
+                     alpha=alpha, linewidth=1.6, length_includes_head=True, zorder=5)
         sn = int(path[0])
         if sn in grid:
             sr, sc = grid[sn]
             ax.scatter(sc, sr, s=100, marker="o", facecolor=color,
-                       edgecolor="black", linewidth=1.5, zorder=10,
+                       edgecolor="black", linewidth=2.0, zorder=10,
                        label=f"MDU {mdu_idx + 1}")
 
-    ax.legend(loc="upper right", fontsize=9, markerscale=0.8)
-    ax.set_title(f"MDU Exploration Routes on Unfolded Space Net\n"
-                 f"({T} timesteps, {N_mdus} MDUs)",
-                 fontweight="bold", fontsize=13)
-    ax.set_xlabel("Principal component 1 (unfolded)", fontweight="bold")
-    ax.set_ylabel("Principal component 2 (unfolded)", fontweight="bold")
+    ax.legend(loc="upper right", fontsize=24, markerscale=0.8)
     ax.set_aspect("equal")
+    ax.tick_params(labelsize=18)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
 
 
 def main():
