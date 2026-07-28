@@ -31,39 +31,40 @@ CONE_ANGLE = np.deg2rad(80.0)  # full cone angle
 CONE_RANGE = 300.0
 
 
-def draw_fov_cone(ax, mdu_pos, ast_centroids, n_lines=16):
-    """Draw the FOV cone as a wireframe from the MDU position.
+def draw_fov_cone(ax, mdu_pos, ast_center, n_lines=16):
+    """Draw the FOV cone wireframe from MDU pointing toward asteroid center.
 
-    Cone axis points toward the nearest asteroid face centroid.
+    Cone axis: MDU → asteroid center (always inward).
+    Radius at base scaled by cos(half_angle) for proper 80deg cone.
     """
-    # Cone axis: toward nearest surface point
-    to_faces = ast_centroids - mdu_pos
-    dists = np.linalg.norm(to_faces, axis=1)
-    nearest_idx = np.argmin(dists)
-    cone_axis = to_faces[nearest_idx] / (dists[nearest_idx] + 1e-10)
+    to_center = ast_center - mdu_pos
+    dist_to_center = np.linalg.norm(to_center)
+    cone_axis = to_center / (dist_to_center + 1e-10)
 
-    # Build a basis perpendicular to cone axis
-    if abs(cone_axis[2]) < 0.9:
-        up = np.array([0.0, 0.0, 1.0])
-    else:
-        up = np.array([1.0, 0.0, 0.0])
-    perp1 = np.cross(cone_axis, up)
+    # Build perpendicular basis
+    ref = np.array([0.0, 0.0, 1.0]) if abs(cone_axis[2]) < 0.9 else np.array([1.0, 0.0, 0.0])
+    perp1 = np.cross(cone_axis, ref)
     perp1 /= np.linalg.norm(perp1) + 1e-10
     perp2 = np.cross(cone_axis, perp1)
 
+    # Reduce cone size 3x
     half_angle = CONE_ANGLE / 2
-    r = CONE_RANGE * np.tan(half_angle)
-    center = mdu_pos + CONE_RANGE * cone_axis
+    R = CONE_RANGE / 3  # shorter cone
+    r = R * np.tan(half_angle)
+    center = mdu_pos + R * cone_axis
 
-    # Circle at range distance
-    theta = np.linspace(0, 2 * np.pi, n_lines + 1)[:-1]
+    # Base circle (closed)
+    theta = np.linspace(0, 2 * np.pi, n_lines + 1)
     circle = np.array([center + r * (np.cos(t) * perp1 + np.sin(t) * perp2)
                        for t in theta])
 
-    # Draw lines from apex to circle points
-    for pt in circle:
+    # Lines from apex to circle
+    for pt in circle[:-1]:
         ax.plot([mdu_pos[0], pt[0]], [mdu_pos[1], pt[1]], [mdu_pos[2], pt[2]],
                 color=(0.0, 0.0, 0.0, 1.0), linewidth=0.5, zorder=3)
+    # Closed base circle
+    ax.plot(circle[:, 0], circle[:, 1], circle[:, 2],
+            color=(0.0, 0.0, 0.0, 1.0), linewidth=0.5, zorder=3)
 
 
 def render_snapshot(ax, data, step, azim, elev, show_cone=True):
@@ -75,7 +76,6 @@ def render_snapshot(ax, data, step, azim, elev, show_cone=True):
     n_mdus = mdu_nodes.shape[1]
     ast_tris = ast_verts[ast_faces]
     ast_center = np.mean(ast_verts, axis=0)
-    ast_centroids = ast_verts[ast_faces].mean(axis=1)  # face centroids
 
     all_pts = np.vstack([ast_verts, net_positions])
     half = np.ptp(all_pts, axis=0).max() / 2
@@ -125,7 +125,7 @@ def render_snapshot(ax, data, step, azim, elev, show_cone=True):
     if show_cone:
         for i in range(n_mdus):
             mdu_pos = net_positions[int(mdu_nodes[step, i])]
-            draw_fov_cone(ax, mdu_pos, ast_centroids)
+            draw_fov_cone(ax, mdu_pos, ast_center)
 
     # 6. MDUs with occlusion
     for i in range(n_mdus):
