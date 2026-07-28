@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.colors import to_rgba_array
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.run_manager import find_run
 
 # Visual constants
@@ -124,7 +124,7 @@ def main():
     p.add_argument("--output", type=str, default=None)
     args = p.parse_args()
 
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     if args.npz:
         npz_path = args.npz

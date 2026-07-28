@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from collections import deque
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.run_manager import find_run
 
 
@@ -91,7 +91,7 @@ def main():
     p.add_argument("--dpi", type=int, default=150, help="Output DPI")
     args = p.parse_args()
 
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Resolve NPZ path
     if args.npz:
