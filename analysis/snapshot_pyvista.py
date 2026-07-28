@@ -2,6 +2,9 @@
 """
 3D snapshot with proper occlusion via PyVista/VTK z-buffer.
 
+Our data uses Z-up; PyVista uses Y-up. All 3D coordinates are converted
+by swapping Y<->Z: (x, y, z) → (x, z, y).
+
 Usage:
     python analysis/snapshot_pyvista.py --tag FINAL_v15 --step 80 --azim "0,90"
 """
@@ -18,73 +21,71 @@ CONE_RANGE = 300.0
 CONE_HALF_ANGLE = np.deg2rad(40.0)
 
 
-def make_asteroid_mesh(verts, faces, cov_mask):
-    """Build asteroid PolyData with per-face coverage coloring."""
-    # PyVista faces format: [n_verts, v0, v1, v2, ...]
-    pv_faces = np.hstack([np.full((faces.shape[0], 1), 3), faces]).astype(np.int64)
-    mesh = pv.PolyData(verts, pv_faces)
+def to_pv(xyz):
+    """Convert Z-up coords to PyVista Y-up: (x, y, z) → (x, z, y)."""
+    out = np.array(xyz, dtype=np.float64, copy=True)
+    if out.ndim == 1:
+        out[1], out[2] = out[2], out[1]
+    else:
+        out[:, [1, 2]] = out[:, [2, 1]]
+    return out
 
-    # Per-face colors: uncovered=gray, covered=green
+
+def make_asteroid_mesh(verts, faces, cov_mask):
+    pv_verts = to_pv(verts)
+    pv_faces = np.hstack([np.full((faces.shape[0], 1), 3, dtype=np.int64),
+                          np.array(faces, dtype=np.int64)]).ravel()
+    mesh = pv.PolyData(pv_verts, pv_faces)
     n_faces = faces.shape[0]
-    colors = np.full((n_faces, 3), [0.5, 0.5, 0.5])         # gray default
-    colors[cov_mask] = [0.2, 0.8, 0.2]                       # green covered
+    colors = np.full((n_faces, 3), [0.50, 0.50, 0.50])
+    colors[cov_mask] = [0.20, 0.80, 0.20]
     mesh.cell_data["colors"] = colors
     return mesh
 
 
 def make_net(positions, edges):
-    """Build space net as lines + nodes."""
-    # Lines
-    line_segments = []
+    pv_pos = to_pv(positions)
+    N = len(pv_pos)
+    lines = []
     for u, v in edges:
-        line_segments.append([2, int(u), int(v)])  # 2 = line
-    lines = pv.PolyData(positions, np.array(line_segments, dtype=np.int64))
-    # Nodes
-    nodes = pv.PolyData(positions)
-    return lines, nodes
+        lines.extend([2, int(u), int(v)])
+    lines_pd = pv.PolyData()
+    lines_pd.points = pv_pos
+    lines_pd.lines = np.array(lines, dtype=np.int64)
+    nodes_pd = pv.PolyData(pv_pos)
+    return lines_pd, nodes_pd
 
 
-def make_fov_cone(mdu_pos, ast_center, n_segments=24):
-    """Build an 80-degree FOV cone wireframe pointing toward asteroid center."""
+def make_fov_cone(mdu_pos, ast_center, n_segments=18):
+    """Build FOV cone in Z-up, convert to PyVista Y-up."""
     to_center = ast_center - mdu_pos
-    cone_axis = to_center / (np.linalg.norm(to_center) + 1e-10)
+    dist = np.linalg.norm(to_center)
+    cone_axis = to_center / (dist + 1e-10)
 
-    # Perpendicular basis
     ref = np.array([0., 0., 1.]) if abs(cone_axis[2]) < 0.9 else np.array([1., 0., 0.])
     perp1 = np.cross(cone_axis, ref)
     perp1 /= np.linalg.norm(perp1) + 1e-10
     perp2 = np.cross(cone_axis, perp1)
 
-    R = CONE_RANGE / 3
-    r = R * np.tan(CONE_HALF_ANGLE)
-    apex = mdu_pos
-    base_center = mdu_pos + R * cone_axis
+    R = CONE_RANGE / 3; r = R * np.tan(CONE_HALF_ANGLE)
+    apex = np.array(mdu_pos)
+    base_c = apex + R * cone_axis
 
-    # Wireframe: lines from apex to base circle + closed base
-    theta = np.linspace(0, 2 * np.pi, n_segments + 1)
-    all_points = [apex]
-    lines_array = []
-    for i in range(n_segments):
-        pt = base_center + r * (np.cos(theta[i]) * perp1 + np.sin(theta[i]) * perp2)
-        all_points.append(pt)
-        lines_array.append([2, 0, i + 1])  # apex -> circle point
-    # Base circle
-    base_start = len(all_points)
-    for i in range(n_segments):
-        pt = base_center + r * (np.cos(theta[i]) * perp1 + np.sin(theta[i]) * perp2)
-        all_points.append(pt)
-        if i < n_segments - 1:
-            lines_array.append([2, base_start + i, base_start + i + 1])
-    # Close the circle
-    lines_array.append([2, base_start + n_segments - 1, base_start])
+    theta = np.linspace(0, 2 * np.pi, n_segments, endpoint=False)
+    circle = np.array([base_c + r * (np.cos(t) * perp1 + np.sin(t) * perp2)
+                       for t in theta])
 
-    cone = pv.PolyData(np.array(all_points), np.array(lines_array, dtype=np.int64))
+    pts_zup = np.vstack([apex.reshape(1, 3), circle])
+    pts_pv = to_pv(pts_zup)
+
+    lines = []
+    for i in range(n_segments):
+        lines.extend([2, 0, i + 1])
+        lines.extend([2, i + 1, 1 + (i + 1) % n_segments])
+
+    cone = pv.PolyData(); cone.points = pts_pv
+    cone.lines = np.array(lines, dtype=np.int64)
     return cone
-
-
-def make_mdu_sphere(center, radius=25.0):
-    """Small sphere at MDU position."""
-    return pv.Sphere(radius=radius, center=center)
 
 
 def render(data, step, azim, elev, output_path, show_cone=True):
@@ -95,61 +96,60 @@ def render(data, step, azim, elev, output_path, show_cone=True):
     ast_center = np.mean(ast_verts, axis=0)
     n_mdus = mdu_nodes.shape[1]
 
-    # ── Build scene ──
     plotter = pv.Plotter(window_size=(1600, 1200), off_screen=True)
     plotter.set_background("white")
 
     # Asteroid
     ast = make_asteroid_mesh(ast_verts, ast_faces, cov_masks[step])
     plotter.add_mesh(ast, scalars="colors", rgb=True, show_scalar_bar=False,
-                     ambient=0.5, diffuse=0.5)
+                     ambient=0.4, diffuse=0.6)
 
-    # Space net
-    net_lines, net_nodes = make_net(net_positions, net_edges)
-    plotter.add_mesh(net_lines, color=[0.3, 0.3, 0.6], line_width=1.5,
-                     opacity=0.7, render_lines_as_tubes=False)
-    plotter.add_mesh(net_nodes, color=[0.2, 0.2, 0.5], point_size=6,
-                     opacity=0.6, render_points_as_spheres=True)
+    # Net
+    net_l, net_n = make_net(net_positions, net_edges)
+    plotter.add_mesh(net_l, color=[0.25, 0.25, 0.55], line_width=2.5,
+                     opacity=0.9, render_lines_as_tubes=True)
+    plotter.add_mesh(net_n, color=[0.15, 0.15, 0.45], point_size=10,
+                     render_points_as_spheres=True, opacity=0.8)
 
     # FOV cones
     if show_cone:
         for i in range(n_mdus):
             mdu_pos = net_positions[int(mdu_nodes[step, i])]
             cone = make_fov_cone(mdu_pos, ast_center)
-            plotter.add_mesh(cone, color=[0.0, 0.0, 0.0], line_width=1.0,
-                             opacity=0.4)
+            plotter.add_mesh(cone, color=[0.0, 0.0, 0.0], line_width=2.5,
+                             opacity=1.0, render_lines_as_tubes=True)
 
     # MDU markers
     for i in range(n_mdus):
-        mdu_pos = net_positions[int(mdu_nodes[step, i])]
+        mdu_pos_zu = net_positions[int(mdu_nodes[step, i])]
         mdu_hex = TOL_MUTED[i % len(TOL_MUTED)].lstrip("#")
         mdu_rgb = tuple(int(mdu_hex[j:j+2], 16) / 255.0 for j in (0, 2, 4))
-        sphere = make_mdu_sphere(mdu_pos, radius=22.0)
-        plotter.add_mesh(sphere, color=list(mdu_rgb), ambient=0.6, diffuse=0.4)
+        sphere = pv.Sphere(radius=25.0, center=to_pv(mdu_pos_zu))
+        plotter.add_mesh(sphere, color=list(mdu_rgb))
 
-    # ── Camera ──
-    # Position camera on a sphere around the center at fixed distance
-    ast_center_arr = np.array(ast_center)
-    radius = 1200.0  # camera distance from asteroid center
+    # Camera: PyVista Y-up. (azim, elev) from our Z-up convention.
+    # In Z-up: camera at distance R with spherical (azim, elev).
+    # Convert to Y-up for PyVista.
     az_rad, el_rad = np.deg2rad(azim), np.deg2rad(elev)
-    cam_pos = ast_center_arr + radius * np.array([
+    R = 1200.0
+    cam_zu = R * np.array([
         np.cos(el_rad) * np.cos(az_rad),
         np.cos(el_rad) * np.sin(az_rad),
         np.sin(el_rad)
     ])
-    up = np.array([0.0, 0.0, 1.0])
-    plotter.camera.position = cam_pos
-    plotter.camera.focal_point = ast_center_arr
-    plotter.camera.up = up
-    plotter.camera.clipping_range = (10.0, 5000.0)
+    cam_pv = to_pv(cam_zu)
+    focal_pv = to_pv(ast_center)
+    plotter.camera.position = cam_pv
+    plotter.camera.focal_point = focal_pv
+    plotter.camera.up = (0.0, 1.0, 0.0)
+    plotter.camera.clipping_range = (10.0, 10000.0)
 
-    # ── Title ──
+    # Title
     plotter.add_title(f"Step {step}  |  Coverage: {cov_rates[step]:.1%}",
-                      font_size=18, color="black", font="times")
+                      font_size=18, color="black")
 
-    # ── Render ──
     plotter.show(auto_close=False)
-    plotter.screenshot(output_path)
+    plotter.screenshot(output_path, return_img=False)
     plotter.close()
     print(f"Saved: {output_path}")
 
@@ -159,7 +159,7 @@ def main():
     p.add_argument("--tag", type=str, default=None); p.add_argument("--run", type=str, default=None)
     p.add_argument("--npz", type=str, default=None); p.add_argument("--step", type=int, required=True)
     p.add_argument("--azim", type=str, default="0,90,180,270")
-    p.add_argument("--elev", type=float, default=20); p.add_argument("--dpi", type=int, default=150)
+    p.add_argument("--elev", type=float, default=20)
     p.add_argument("--output", type=str, default=None)
     p.add_argument("--no-cone", action="store_true")
     args = p.parse_args()
