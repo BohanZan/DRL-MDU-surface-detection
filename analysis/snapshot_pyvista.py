@@ -102,7 +102,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
     # Asteroid
     ast = make_asteroid_mesh(ast_verts, ast_faces, cov_masks[step])
     plotter.add_mesh(ast, scalars="colors", rgb=True, show_scalar_bar=False,
-                     ambient=0.4, diffuse=0.6)
+                     ambient=0.4, diffuse=0.6, opacity=0.55)
 
     # Net
     net_l, net_n = make_net(net_positions, net_edges)
@@ -124,7 +124,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
         mdu_pos_zu = net_positions[int(mdu_nodes[step, i])]
         mdu_hex = TOL_MUTED[i % len(TOL_MUTED)].lstrip("#")
         mdu_rgb = tuple(int(mdu_hex[j:j+2], 16) / 255.0 for j in (0, 2, 4))
-        sphere = pv.Sphere(radius=25.0, center=to_pv(mdu_pos_zu))
+        sphere = pv.Sphere(radius=15.0, center=to_pv(mdu_pos_zu))
         plotter.add_mesh(sphere, color=list(mdu_rgb))
 
     # Camera: PyVista Y-up. (azim, elev) from our Z-up convention.
