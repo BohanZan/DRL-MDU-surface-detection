@@ -31,8 +31,9 @@ def to_pv(xyz):
     return out
 
 
-def make_asteroid_mesh(verts, faces, cov_mask):
-    pv_verts = to_pv(verts)
+def make_asteroid_mesh(verts, faces, cov_mask, scale=0.72):
+    """Build asteroid mesh, optionally scaling to fit inside net."""
+    pv_verts = to_pv(verts * scale)
     pv_faces = np.hstack([np.full((faces.shape[0], 1), 3, dtype=np.int64),
                           np.array(faces, dtype=np.int64)]).ravel()
     mesh = pv.PolyData(pv_verts, pv_faces)
