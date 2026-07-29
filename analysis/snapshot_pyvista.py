@@ -31,7 +31,7 @@ def to_pv(xyz):
     return out
 
 
-def make_asteroid_mesh(verts, faces, cov_mask, scale=0.72):
+def make_asteroid_mesh(verts, faces, cov_mask, scale=0.95):
     """Build asteroid mesh, optionally scaling to fit inside net."""
     pv_verts = to_pv(verts * scale)
     pv_faces = np.hstack([np.full((faces.shape[0], 1), 3, dtype=np.int64),
@@ -125,7 +125,7 @@ def render(data, step, azim, elev, output_path, show_cone=True):
         mdu_pos_zu = net_positions[int(mdu_nodes[step, i])]
         mdu_hex = TOL_MUTED[i % len(TOL_MUTED)].lstrip("#")
         mdu_rgb = tuple(int(mdu_hex[j:j+2], 16) / 255.0 for j in (0, 2, 4))
-        sphere = pv.Sphere(radius=15.0, center=to_pv(mdu_pos_zu))
+        sphere = pv.Sphere(radius=8.0, center=to_pv(mdu_pos_zu))
         plotter.add_mesh(sphere, color=list(mdu_rgb))
 
     # Camera: PyVista Y-up. (azim, elev) from our Z-up convention.
